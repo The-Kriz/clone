@@ -1,9 +1,31 @@
 import socket
 import cv2
 import time
-client = socket.socket(socket.AF_INET,socket.SOCK_STREAM) #  AF_INET = IP address , SOCK_STREAM = TCP
-client.connect(('192.168.0.102',8080))  #127.0.0.1 , port
-print("connected")
+
+
+server_port = 8080
+Connection = False
+
+
+while not Connection :
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    client_socket.bind(('', 0))
+    client_socket.settimeout(5)
+    server_address = None
+    while not server_address:
+        try:
+            data = b'Hello Server'
+            client_socket.sendto(data, ('<broadcast>', server_port))
+
+            message, server_address = client_socket.recvfrom(1024)
+            if message == b'Server Found':
+                print("Server found. Server address:", server_address)
+                Connection = True
+        except socket.timeout:
+            print("Server not found. Retrying...")
+
+
 
 cap = cv2.VideoCapture(0) # connect to the first camera connected to the Pi
 
@@ -26,6 +48,8 @@ while True:
             break
     time.sleep(0)
 
+
+client_socket.close()
 cap.release()
 cv2.destroyAllWindows()
 client.close()
