@@ -27,35 +27,6 @@ while not connected:
 
 client_socket.settimeout(None)  # Reset the timeout to disable it
 
-cap = cv2.VideoCapture(0)  # connect to the first camera connected to the client
-
-while True:
-    if not cap.isOpened():
-        print("Error: could not open camera.")
-        exit()
-    else:
-        ret, frame = cap.read()  # read a frame from the camera
-        frame = cv2.resize(frame, (640, 480))  # resize the frame to a smaller size for faster transfer
-        encoded_frame = cv2.imencode('.jpg', frame)[1].tobytes()  # encode the frame as a jpeg and convert to bytes
-
-        lenn = len(encoded_frame).to_bytes(4, byteorder='little')
-
-        # Send the size of the encoded frame as 4 bytes in little endian order
-        client_socket.sendto(lenn, addr)
-        # Send the encoded frame
-        client_socket.sendto(encoded_frame, addr)
-
-        # cv2.imshow('frame', frame) # show the frame on the client side
-        if cv2.waitKey(1) & 0xFF == ord('q'):  # exit loop if 'q' is pressed
-            break
-    time.sleep(0)
-
-cap.release()
-cv2.destroyAllWindows()
-client_socket.close()
-
-
-
 cap = cv2.VideoCapture(0) # connect to the first camera connected to the Pi
 
 while True:
