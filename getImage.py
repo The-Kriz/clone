@@ -1,45 +1,47 @@
-
 import socket
 import cv2
 import numpy as np
 import struct
-import socket
-
 
 server_port = 8080
 Connection = False
 
-
 img_size = (640, 480)
 img_dtype = np.uint8
-img_shape = (img_size[1], img_size[0], 3)
+img_shape = (img_size[1], img_size[0])
 # video_writer = cv2.VideoWriter('received_video.avi', cv2.VideoWriter_fourcc(*'MJPG'), 30, img_size)
 
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind(('', server_port))
+server_socket.listen(1)
+print("Server is running. Waiting for a client to connect...")
 
-while not Connection :
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('', server_port))
-    server_socket.listen(1)
-
-    print("Server is running. Waiting for a client to connect...")
-
-    conn, addr = server_socket.accept()
-    print("Client connected. Client address:", addr)
-
-    # Receive client's initial message
-    data = conn.recv(1024)
-
+# Listen for broadcasted message from the client
+client_ip = ''
+client_port = 0
+while True:
+    data, addr = server_socket.recvfrom(1024)
     if data == b'Hello Server':
-        # Valid client
-        conn.send(b'Server Found')
-        print("Valid client. Connection established.")
-        # Perform further actions with the connected client
-        Connection =  True
+        client_ip = addr[0]
+        client_port = int(data.decode().split(':')[1])
+        break
 
-    else:
-        # Invalid client
-        conn.send(b'Invalid Client')
-        print("Invalid client. Connection rejected.")
+# Accept the connection from the client
+conn, addr = server_socket.accept()
+print("Client connected. Client address:", addr)
+
+# Receive client's initial message
+data = conn.recv(1024)
+
+if data == b'Hello Server':
+    # Valid client
+    conn.send(b'Server Found')
+    print("Valid client. Connection established.")
+    # Perform further actions with the connected client
+else:
+    # Invalid client
+    conn.send(b'Invalid Client')
+    print("Invalid client. Connection rejected.")
 
 
 def sendimage():
