@@ -3,11 +3,14 @@ import socket
 import cv2
 import numpy as np
 import struct
+from  connectToPi import *
 
 ipAddress = input("Enter Server Ip Address: ")
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((ipAddress, 8080))
 server.listen()
+print("server listening.")
+ssh_run_command(ipAddress)
 conn, addr = server.accept()
 print("Client connected.")
 
