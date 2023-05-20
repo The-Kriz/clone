@@ -1,8 +1,12 @@
 import socket
 import cv2
 import time
+
+ipAddress = input("Enter Server Ip Address: ")
+
+
 client = socket.socket(socket.AF_INET,socket.SOCK_STREAM) #  AF_INET = IP address , SOCK_STREAM = TCP
-client.connect(('192.168.0.102',8080))  #127.0.0.1 , port
+client.connect((ipAddress,8080))  #127.0.0.1 , port
 print("connected")
 
 cap = cv2.VideoCapture(0) # connect to the first camera connected to the Pi
